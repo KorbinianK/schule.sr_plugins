@@ -20,8 +20,8 @@ class sr_alert extends WP_Widget
 	function __construct() {
 			parent::__construct(
 				'sr_alert',
-				__( '# SR Meldung',  sr_slider ),
-				array( 'description' => __( 'Wichtige Benachrichtigungen.',  sr_slider ), )
+				__( '# SR Meldung',  'sr_alert' ),
+				array( 'description' => __( 'Wichtige Benachrichtigungen.',  'sr_alert' ), )
 			);
 
 			add_action('admin_enqueue_scripts', array($this, 'scripts'));
@@ -45,7 +45,7 @@ class sr_alert extends WP_Widget
 
 		
 	
-		$before = '<div class="alert alert-'.$class.' alert-dismissible fade in" role="alert">
+		$before = '<div class="alert alert-'.$class.' alert-dismissible fade show" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>';
@@ -97,7 +97,7 @@ class sr_alert extends WP_Widget
             Gelb
           </option> 
           <option value='success'<?php echo ($class=='success')?'selected':''; ?>>
-            GrÃŒn
+            Grün
           </option> 
         </select>                
       </label>

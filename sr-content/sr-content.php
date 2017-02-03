@@ -32,8 +32,9 @@ class sr_content_Widget extends WP_Widget {
 
 
 		extract($args);
-		$title = apply_filters('widget_title', $instance['title']);
 		$page_id = (int) $instance['page_id'];
+		$title = apply_filters('widget_title', $instance['title']);
+		
 		
 		$more = (int) $instance['more'];
 

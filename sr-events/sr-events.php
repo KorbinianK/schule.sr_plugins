@@ -27,9 +27,6 @@ class sr_event_Widget extends WP_Widget {
 
 	/** @see WP_Widget::widget */
 	public function widget($args, $instance) {
-	
-
-
 		extract($args);
 		$title = apply_filters('widget_title', $instance['title']);
 		$year = $instance['date_y'];
@@ -92,6 +89,7 @@ class sr_event_Widget extends WP_Widget {
 		echo '		<span class="sr-event-month">'.$month.'</span>
 					<span class="sr-event-day">'.$day.'</span>';
 		echo' 	</div>';
+
 		echo '<div class="sr-event-text">';
 		echo "  <h2 class='sr-event-headline'>".$instance['name']."</h2>";
 		echo "  <p class='sr-event-desc'>".$instance['desc']."</p>";
@@ -151,6 +149,15 @@ class sr_event_Widget extends WP_Widget {
 		<p><label for="<?php echo $this->get_field_id('desc'); ?>"><?php _e('Beschreibung:'); ?> 
 		<input class="widefat" id="<?php echo $this->get_field_id('desc'); ?>" name="<?php echo $this->get_field_name('desc'); ?>" type="text" value="<?php echo $desc; ?>" />
 		</label></p>
+
+
+		<!--<p><label for="<?php echo $this->get_field_id('date'); ?>"><?php _e('Datum:'); ?>
+		<input class="widefat" id="<?php echo $this->get_field_id('date'); ?> datepicker"  name="<?php echo $this->get_field_name('date'); ?>" type="text" value="" />
+		</label></p>-->
+		<div class="wrap">
+			<input type="text" class="datepicker" name="datepicker" value=""/>
+		</div>
+
 		<p><label for="<?php echo $this->get_field_id('date_m'); ?>"><?php _e('Monat:'); ?>
 		<input class="widefat" id="<?php echo $this->get_field_id('date_m'); ?>" name="<?php echo $this->get_field_name('date_m'); ?>" type="number" min="1" max="12" placeholder="4" value="<?php echo $date_m; ?>" />
 		</label></p>
@@ -170,4 +177,3 @@ class sr_event_Widget extends WP_Widget {
 function register_sr_event() {
 	 return register_widget("sr_event_Widget"); 
 	 }
-add_action('widgets_init', 'register_sr_event');

@@ -6,12 +6,11 @@
 /*
   Plugin Name: Event Widget for schule.sr
   Description: Zeigt einen Termin als Element an
-  Version: 1.0
+  Version: 1.3
   Author: 
   Author URI: 
-  
  */
-
+add_action( 'widgets_init', 'register_sr_event' );
 /**
  * sr_event_Widget Class
  */
@@ -23,71 +22,33 @@ class sr_event_Widget extends WP_Widget {
 			'description' => 'Zeigt Termin an'
 		)
 		);
+
+		add_action('admin_enqueue_scripts', array($this, 'scripts'));
 	}
+
+ public function scripts() {
+	    	wp_enqueue_script('jquery');
+            wp_enqueue_script('jquery-ui-datepicker');
+    		wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+			wp_enqueue_script('sr_event_widget', plugin_dir_url(__FILE__).'/event.js', array('jquery'));
+
+	    }
+
 
 	/** @see WP_Widget::widget */
 	public function widget($args, $instance) {
 		extract($args);
 		$title = apply_filters('widget_title', $instance['title']);
-		$year = $instance['date_y'];
-		if($instance['date_d'] >10){
-			$day = '0'.$instance['date_d'];
-		}else{
-			$day = $instance['date_d'];
-		}
-		$day = $instance['date_d'];
-		
-
-		switch ($instance['date_m']) {
-			case '1':
-				$month = 'jan';
-				break;
-			case '2':
-				$month = 'feb';
-				break;
-			case '3':
-				$month = 'mär';
-				break;
-			case '4':
-				$month = 'apr';
-				break;
-			case '5':
-				$month = 'mai';
-				break;
-			case '6':
-				$month = 'jun';
-				break;
-			case '7':
-				$month = 'jul';
-				break;
-			case '8':
-				$month = 'aug';
-				break;
-			case '9':
-				$month = 'sep';
-				break;
-			case '10':
-				$month = 'okt';
-				break;
-			case '11':
-				$month = 'nov';
-				break;
-			case '12':
-				$month = 'dez';
-				break;
-			
-			default:
-				$month = 'error';
-				break;
-		}
+		$date = $instance['date'];
+	
 
 		echo $before_widget;
 
 		
 		echo' <div class="sr-event">';
 		echo' 	<div class="sr-event-date">';
-		echo '		<span class="sr-event-month">'.$month.'</span>
-					<span class="sr-event-day">'.$day.'</span>';
+		echo '		<span class="sr-event-month">'.explode("-",$date)[1].'</span>
+					<span class="sr-event-day">'.explode("-",$date)[0].'</span>';
 		echo' 	</div>';
 
 		echo '<div class="sr-event-text">';
@@ -106,10 +67,7 @@ class sr_event_Widget extends WP_Widget {
 		$instance['title'] = strip_tags($new_instance['name']);
 		$instance['name'] = strip_tags($new_instance['name']);
 		$instance['desc'] = strip_tags($new_instance['desc']);
-		$instance['date_m'] = strip_tags($new_instance['date_m']);
-		$instance['date_d'] = strip_tags($new_instance['date_d']);
-		$instance['date_y'] = strip_tags($new_instance['date_y']);
-		// $instance['more'] = (int) $new_instance['more'];
+		$instance['date'] = strip_tags($new_instance['date']);
 		return $instance;
 	}
 
@@ -125,19 +83,10 @@ class sr_event_Widget extends WP_Widget {
 		if (isset($instance['desc'])) {
 			$desc = esc_attr($instance['desc']);
 		}
-
-		if (isset($instance['date_m'])) {
-			$date_m = esc_attr($instance['date_m']);
+		if (isset($instance['date'])) {
+			$date = esc_attr($instance['date']);
 		}
-		if (isset($instance['date_d'])) {
-			$date_d = esc_attr($instance['date_d']);
-		}
-		if(isset($instance['date_y'])){
-			$date_y = esc_attr($instance['date_y']);
-		}else{
-			$date_y = date('Y');
-		}
-
+	
 ?>
 		<p>
 		
@@ -149,24 +98,11 @@ class sr_event_Widget extends WP_Widget {
 		<p><label for="<?php echo $this->get_field_id('desc'); ?>"><?php _e('Beschreibung:'); ?> 
 		<input class="widefat" id="<?php echo $this->get_field_id('desc'); ?>" name="<?php echo $this->get_field_name('desc'); ?>" type="text" value="<?php echo $desc; ?>" />
 		</label></p>
-
-
-		<!--<p><label for="<?php echo $this->get_field_id('date'); ?>"><?php _e('Datum:'); ?>
-		<input class="widefat" id="<?php echo $this->get_field_id('date'); ?> datepicker"  name="<?php echo $this->get_field_name('date'); ?>" type="text" value="" />
-		</label></p>-->
-		<div class="wrap">
-			<input type="text" class="datepicker" name="datepicker" value=""/>
-		</div>
-
-		<p><label for="<?php echo $this->get_field_id('date_m'); ?>"><?php _e('Monat:'); ?>
-		<input class="widefat" id="<?php echo $this->get_field_id('date_m'); ?>" name="<?php echo $this->get_field_name('date_m'); ?>" type="number" min="1" max="12" placeholder="4" value="<?php echo $date_m; ?>" />
+		<p><label for="<?php echo $this->get_field_id('date'); ?>"><?php _e('Datum:'); ?>
+			<input class="widefat custom_date" id="<?php echo $this->get_field_id('date'); ?>" name="<?php echo $this->get_field_name('date'); ?>" type="date" value="<?php echo $date; ?>" />
 		</label></p>
-		<p><label for="<?php echo $this->get_field_id('date_d'); ?>"><?php _e('Tag:'); ?> 
-		<input class="widefat" id="<?php echo $this->get_field_id('date_d'); ?>" name="<?php echo $this->get_field_name('date_d'); ?>" type="number" min="1" max="31"  placeholder="30" value="<?php echo $date_d; ?>" />
-		</label></p>
-		<p><label for="<?php echo $this->get_field_id('date_y'); ?>"><?php _e('Jahr:'); ?> 
-		<input class="widefat" id="<?php echo $this->get_field_id('date_y'); ?>" name="<?php echo $this->get_field_name('date_y'); ?>" type="number" min="<?php echo date('Y'); ?>" placeholder="2016" value="<?php echo $date_y; ?>" />
-		</label></p>
+
+		
 		
 <?php
 	}

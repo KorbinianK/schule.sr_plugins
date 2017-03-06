@@ -24,6 +24,7 @@ class sr_content_Widget extends WP_Widget {
 		)
 		);
 	}
+	
 
 	/** @see WP_Widget::widget */
 	public function widget($args, $instance) {
@@ -112,3 +113,4 @@ function register_sr_content() {
 	 return register_widget("sr_content_Widget"); 
 	 }
 add_action('widgets_init', 'register_sr_content');
+

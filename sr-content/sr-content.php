@@ -68,8 +68,8 @@ class sr_content_Widget extends WP_Widget {
 	/** @see WP_Widget::update */
 	public function update($new_instance, $old_instance) {
 		$instance = $old_instance;
-		$instance['title'] = strip_tags($new_instance['title']);
 		$instance['page_id'] = (int) $new_instance['page_id'];
+		$instance['title'] = strip_tags(get_the_title($instance['page_id']));
 		$instance['more'] = (int) $new_instance['more'];
 		return $instance;
 	}
@@ -100,9 +100,8 @@ class sr_content_Widget extends WP_Widget {
 		);
 ?>
 
-		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?> <input type="hidden"class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><?php wp_dropdown_pages($pageIdArgs); ?></p>
-		<p><label for="<?php echo $this->get_field_id('more'); ?>"><input id="<?php echo $this->get_field_id('more'); ?>" name="<?php echo $this->get_field_name('more'); ?>" type="checkbox" value="1" <?php echo $checked; ?> /> <?php _e('Show more link'); ?></label></p>
 <?php
 	}
 

@@ -48,12 +48,12 @@ class sr_content_Widget extends WP_Widget {
 		}
 
 		if ($title) {
-			echo $before_title . $title . $after_title;
+			// echo $before_title . $title . $after_title;
 		}
 			
 		$auto_excerpt =  wpsr_custom_wp_trim_excerpt($page_id,7000);
 		echo' <div class="sr-content">';
-		echo "<h1 class=''>".get_the_title($page_id)."</h1>";
+		// echo "<h1 class=''>".get_the_title($page_id)."</h1>";
 		echo' 	<div class="sr-img-block">';
 		echo get_the_post_thumbnail( $page_id, 'large', array( 'class' => 'featured-front-img' ) );
 		echo' 	<div class="sr-content-block">';

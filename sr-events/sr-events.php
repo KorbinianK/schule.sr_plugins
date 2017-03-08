@@ -43,7 +43,7 @@ class sr_event_Widget extends WP_Widget {
 	
 
 		echo $before_widget;
-
+		echo '<div class="head-line"><h2>Termine</h2></div>';
 		
 		echo' <div class="sr-event">';
 		echo' 	<div class="sr-event-date">';
@@ -99,7 +99,7 @@ class sr_event_Widget extends WP_Widget {
 		<input class="widefat" id="<?php echo $this->get_field_id('desc'); ?>" name="<?php echo $this->get_field_name('desc'); ?>" type="text" value="<?php echo $desc; ?>" />
 		</label></p>
 		<p><label for="<?php echo $this->get_field_id('date'); ?>"><?php _e('Datum:'); ?>
-			<input class="widefat custom_date" id="<?php echo $this->get_field_id('date'); ?>" name="<?php echo $this->get_field_name('date'); ?>" type="date" value="<?php echo $date; ?>" />
+			<input class="widefat custom_date" id="<?php echo $this->get_field_id('date'); ?>" name="<?php echo $this->get_field_name('date'); ?>"  value="<?php echo $date; ?>" />
 		</label></p>
 
 		

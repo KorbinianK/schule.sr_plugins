@@ -11,6 +11,8 @@
   Author URI: 
  */
 add_action( 'widgets_init', 'register_sr_event' );
+$event_counter = 0;
+$more_showed = -1;
 /**
  * sr_event_Widget Class
  */
@@ -27,7 +29,6 @@ class sr_event_Widget extends WP_Widget {
 	}
 
  public function scripts() {
-	    	wp_enqueue_script('jquery');
             wp_enqueue_script('jquery-ui-datepicker');
     		wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
 			wp_enqueue_script('sr_event_widget', plugin_dir_url(__FILE__).'/event.js', array('jquery'));
@@ -38,26 +39,43 @@ class sr_event_Widget extends WP_Widget {
 	/** @see WP_Widget::widget */
 	public function widget($args, $instance) {
 		extract($args);
+		global $more_showed;
+		global $event_counter;
+		$event_showed = false;
 		$title = apply_filters('widget_title', $instance['title']);
 		$date = $instance['date'];
-	
-
-		echo $before_widget;
-		echo '<div class="head-line"><h2>Termine</h2></div>';
+		$month = explode("-",$date)[1];
+		$day = explode("-",$date)[0];
+		$php_date = strftime($date);
+		$today = strftime(date('d-M-Y'));
+		if($php_date >= $today || !is_front_page()){
+			if(is_front_page()){
+				$event_counter++;
+			}
+			if($event_counter < 3){
+				$event_showed = true;
+				echo $before_widget;
+				echo' <div class="sr-event">';
+				echo' 	<div class="sr-event-date">';
+				echo '		<span class="sr-event-month">'.$month.'</span>
+							<span class="sr-event-day">'.$day.'</span>';
+				echo' 	</div>';
+				echo '<div class="sr-event-text">';
+				echo "  <h2 class='sr-event-headline'>".$instance['name']."</h2>";
+				echo "  <p class='sr-event-desc'>".$instance['desc']."</p>";
+				echo'</div>';
+				echo'</div>';
+				echo $after_widget;
+			}elseif($more_showed == -1){
+				echo "<a href='/termine/'>mehr Termine...</a>";
+				$more_showed = 1;
+			}
+		}
+		if($more_showed == -1 && !$event_showed){
+			echo "<strong>Aktuell keine Termine.</strong>";
+			$more_showed = 1;
+		}
 		
-		echo' <div class="sr-event">';
-		echo' 	<div class="sr-event-date">';
-		echo '		<span class="sr-event-month">'.explode("-",$date)[1].'</span>
-					<span class="sr-event-day">'.explode("-",$date)[0].'</span>';
-		echo' 	</div>';
-
-		echo '<div class="sr-event-text">';
-		echo "  <h2 class='sr-event-headline'>".$instance['name']."</h2>";
-		echo "  <p class='sr-event-desc'>".$instance['desc']."</p>";
-		echo'</div>';
-		echo'</div>';
-
-		echo $after_widget;
 	}
 
 

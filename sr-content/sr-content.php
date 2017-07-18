@@ -51,7 +51,7 @@ class sr_content_Widget extends WP_Widget {
 			// echo $before_title . $title . $after_title;
 		}
 			
-		$auto_excerpt =  wpsr_custom_wp_trim_excerpt($page_id,7000);
+		$auto_excerpt =  wpsr_custom_wp_trim_excerpt($page_id,7000,'post');
 		echo' <div class="sr-content">';
 		// echo "<h1 class=''>".get_the_title($page_id)."</h1>";
 		echo' 	<div class="sr-img-block">';

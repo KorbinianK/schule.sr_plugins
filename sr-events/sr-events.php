@@ -14,6 +14,7 @@
 add_action( 'init', 'sr_event');
 add_action( 'add_meta_boxes', 'add_events_metaboxes' );
 add_action( 'save_post', 'sr_event_save_date');
+add_action( 'save_post', 'sr_event_until_save_date');
 add_filter( 'manage_sr-event_posts_columns', 'register_sr_event_columns');
 add_action( 'manage_posts_custom_column', 'handle_sr_event_custom_columns', 10, 2 );
 
@@ -64,7 +65,42 @@ function handle_sr_event_custom_columns($column, $post_id){
 
 
 function add_events_metaboxes() {
-     add_meta_box('sr-event-date', 'Datum', 'sr_event_date_callback', 'sr-event', 'side','high');
+     add_meta_box('sr-event-date', 'Von:', 'sr_event_date_callback', 'sr-event', 'side','high');
+     add_meta_box('sr-event-date_until', 'Bis (optional):', 'sr_event_date_until_callback', 'sr-event', 'side','high');
+     
+}
+
+function sr_event_date_until_callback($post) {
+    wp_nonce_field( 'sr_event_until_save_date', 'sr_event_date_until_box_nonce');
+    
+    $newDate = '';
+    $value = get_post_meta( $post->ID, '_sr_event_date_until_value_key', true );
+    if(isset($value)){
+        $newDate = $value;
+    }
+    echo '<label for="sr_event_date_until_field">Datum</label>';
+    echo '<input type="date" id="sr_event_date_until_field" name="sr_event_date_until_field" value="'.$newDate .'" size="25" />';
+}
+
+function sr_event_until_save_date($post_id){
+    if(!isset($_POST['sr_event_date_until_box_nonce'])){
+        return;
+    }
+    if(!wp_verify_nonce( $_POST['sr_event_date_until_box_nonce'], 'sr_event_until_save_date' )){
+        return;
+    }
+    if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE){
+        return;
+    }
+    if(! current_user_can( 'edit_post',$post_id )){
+        return;
+    }
+    if(!isset($_POST['sr_event_date_until_field'])|| $_POST['sr_event_date_until_field'] == '0'){
+        return;
+    }
+    $data = sanitize_text_field( $_POST['sr_event_date_until_field'] );
+  
+    update_post_meta( $post_id, '_sr_event_date_until_value_key', $data );
 }
 
 function sr_event_date_callback($post) {
@@ -168,9 +204,13 @@ function sr_event_excerpt($page_id,$word_count) {
             $event_excerpt = str_replace(']]>', ']]&gt;', $event_excerpt);
             $event_excerpt = strip_tags($event_excerpt, sr_event_allowedtags()); 
             $limit_reached = false;
-            if(isset($word_count)){
+            if(isset($word_count) && $word_count > 0){
                 $excerpt_word_count = $word_count;
-            }else{
+            }elseif($word_count == 0){
+                $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-primary text-muted">' . sprintf(__( 'DETAILS &nbsp;&raquo;', 'srevent' )) . '</a>'; 
+                return $excerpt_end;
+            }
+            else{
                  $excerpt_word_count = 30;
             }
                 $excerpt_length = apply_filters('excerpt_length', $excerpt_word_count); 
@@ -194,7 +234,7 @@ function sr_event_excerpt($page_id,$word_count) {
                 $event_excerpt = trim(force_balance_tags($excerptOutput));
                 
                 if($limit_reached){
-                    $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-primary text-muted">' . sprintf(__( 'WEITER LESEN &nbsp;&raquo;', 'srevent' )) . '</a>'; 
+                    $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-primary text-muted">' . sprintf(__( 'DETAILS &nbsp;&raquo;', 'srevent' )) . '</a>'; 
                     $excerpt_more = apply_filters('excerpt_more', ' ' . $excerpt_end); 
                 }
                
@@ -210,7 +250,7 @@ function sr_event_list() {
     $monthNamesShort = array('','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez');
     $today = date('Y-m-d');
     $args = array(
-            'post_type' => 'sr-event',
+        'post_type' => 'sr-event',
         'meta_key' => '_sr_event_date_value_key',
         'orderby' => 'meta_value', 
         'order' => 'ASC'
@@ -218,84 +258,107 @@ function sr_event_list() {
     $firstContent = array();
     $secondContent = array();
     $firstHalfYear = array('9','10','11','12','1','2');
-    
+    $second_empty = false;
+    $first_empty = false;
     $query = new WP_query ( $args );
     if ( $query->have_posts() ) { ?>
  
         <?php while ( $query->have_posts() ) : $query->the_post(); /* start the loop */
             $event_date = get_post_meta( get_the_ID(), '_sr_event_date_value_key', true);
+            $event_date_until = get_post_meta( get_the_ID(), '_sr_event_date_until_value_key', true);
             $timestamp1 = strtotime($today);
-            $timestamp2 = strtotime($event_date);
+            if(isset($event_date_until) && $event_date_until != ''){
+                $timestamp2 = strtotime($event_date_until);
+            }else{
+                $timestamp2 = strtotime($event_date);
+            }
+            if(is_front_page()){
+                $limit = 0;
+            }else{
+                $limit = 6;
+            }
+            $year = substr( explode("-",$event_date)[0],2,4);
             $month = explode("-",$event_date)[1];
             $day = explode("-",$event_date)[2];
+            $time = strtotime("-1 year", time());
+            $last_year = date("y", $time);
+            $this_year = date("y");
+            $year_span = $last_year."/".$this_year;
             $month_text = $monthNamesShort[intval($month)];
             $php_date = DateTime::createFromFormat('d.m.Y', $event_date);
             $post_id = get_the_ID();
-            ob_start();
-            $auto_excerpt =  sr_event_excerpt(the_content(),6);
-            ob_get_clean();  
-           
-            $content = '';
+            if($year == $last_year || $year == $this_year){
+                ob_start();
+                $auto_excerpt =  sr_event_excerpt(the_content(),$limit);
+                ob_get_clean();  
+                $content = '';
                 $content .=' <div class="sr-event">';
                 $content .=' 	<div class="sr-event-date">';
-                $content .= '		<span class="sr-event-month">'.$month_text.'</span>
-                                    <span class="sr-event-day">'.$day.'</span>';
+                $content .= '       <span class="sr-event-day">'.$day.'</span>
+                                    <span class="sr-event-month">'.$month_text.'</span>';
                 $content .=     '</div>';
                 $content .=     '<div class="sr-event-text">';
                 $content .=         "<h2 class='sr-event-headline'>";
                 $content .=             "<a href='".get_the_permalink( $post_id)."' title='".esc_attr__( 'Permalink to ', 'compass' ).the_title_attribute( 'echo=0' )  ."' rel='bookmark'>". get_the_title( $post_id)."</a>";
                 $content .=         "</h2>";
+                if($event_date_until != ''){
+                    $content .=         "<p class='sr-event-until'>Bis: ".date_format(date_create($event_date_until),'d.m')."</p>";
+                }
                 $content .=         "<p class='sr-event-desc'>".$auto_excerpt."</p>";
+                if ( has_post_thumbnail($post_id) && !strpos($auto_excerpt,"btn-primary")) { 
+                         $content .=  '<a href="'.get_the_permalink($post_id). '" class="btn btn-sm btn-primary text-muted">' . 'DETAILS &nbsp;&raquo;' . '</a>'; 
+                    } 
                 $content .=     '</div>';
                 $content .='</div>';
-            if(is_front_page() && $timestamp1 <= $timestamp2){
+                if(is_front_page() && $timestamp1 <= $timestamp2){
+                    if(in_array($month,$firstHalfYear)){
+                        $firstContent[] = $content;
+                    }else{
+                        $secondContent[] = $content;
+                    }
+                }elseif(!is_front_page()){
+                    
                 if(in_array($month,$firstHalfYear)){
-                    $firstContent[] = $content;
-                }else{
-                    $secondContent[] = $content;
-                }
-                // echo $content;
-            }elseif(!is_front_page()){
-                if ( has_post_thumbnail()) { 
-                    $content .='<a href="'.get_the_permalink( $post_id)."'>";
-                    $content .= get_the_post_thumbnail($post_id, 'medium', array(
-                        'class' => 'event-picture aligncenter',
-                        'alt'   => trim(strip_tags( $wp_postmeta->_wp_attachment_image_alt ))
-                    ) ); 
-                    $content .='</a>';
-                } 
-               if(in_array($month,$firstHalfYear)){
-                    $firstContent[] = $content;
-                }else{
-                    $secondContent[] = $content;
+                        $firstContent[] = $content;
+                    }else{
+                        $secondContent[] = $content;
+                    }
                 }
             }
-            
         ?>
         <?php endwhile; /* end the loop*/ ?>
         <?php 
         
         if(sizeof( $firstContent)>0){
-            
+           
         if(!is_front_page()){?>
+        
             <div class="head-line">
-                <h2>1. Halbjahr</h2>
+                <h2>1. Halbjahr <?php echo $year_span; ?></h2>
             </div>
             <?php }
             for ($i=0; $i < sizeof($firstContent) ; $i++) { 
                 echo $firstContent[$i];
             }
+        }else{
+           $first_empty = true;
         }
-         if(sizeof( $secondContent)>0){
-        if(!is_front_page()){?>
-             <div class="head-line">
-                <h2>2. Halbjahr</h2>
-            </div>
-        <?php }
+        if(sizeof( $secondContent)>0){
+            if(!is_front_page()){?>
+                <div class="head-line">
+                    <h2>2. Halbjahr <?php echo $year_span; ?></h2>
+                </div>
+            <?php }
             for ($i=0; $i < sizeof($secondContent) ; $i++) { 
                 echo $secondContent[$i];
             }
+        }else{
+            $second_empty = true;
         }
+        if($first_empty && $second_empty){
+            echo "Keine aktuellen Termine. <br/> <a href='termine' class='btn btn-sm btn-primary text-muted'>Übersicht</a>";
+        }
+        
         
         ?>
         <?php rewind_posts();

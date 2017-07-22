@@ -65,7 +65,7 @@ function handle_sr_event_custom_columns($column, $post_id){
 
 
 function add_events_metaboxes() {
-     add_meta_box('sr-event-date', 'Von:', 'sr_event_date_callback', 'sr-event', 'side','high');
+     add_meta_box('sr-event-date', 'Vom:', 'sr_event_date_callback', 'sr-event', 'side','high');
      add_meta_box('sr-event-date_until', 'Bis (optional):', 'sr_event_date_until_callback', 'sr-event', 'side','high');
      
 }
@@ -184,7 +184,7 @@ function sr_event()
         'exclude_from_search'   => false,
         'publicly_queryable'    => true,
         'capability_type'       => 'page',
-        'menu_icon'             => 'dashicons-calendar-alt'
+        'menu_icon'             => 'dashicons-calendar-alt',
     );
     register_post_type( 'sr-event', $args );
 }
@@ -207,7 +207,7 @@ function sr_event_excerpt($page_id,$word_count) {
             if(isset($word_count) && $word_count > 0){
                 $excerpt_word_count = $word_count;
             }elseif($word_count == 0){
-                $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-primary text-muted">' . sprintf(__( 'DETAILS &nbsp;&raquo;', 'srevent' )) . '</a>'; 
+                $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-outline-secondary text-muted">' . sprintf(__( 'DETAILS &nbsp;&raquo;', 'srevent' )) . '</a>'; 
                 return $excerpt_end;
             }
             else{
@@ -234,7 +234,7 @@ function sr_event_excerpt($page_id,$word_count) {
                 $event_excerpt = trim(force_balance_tags($excerptOutput));
                 
                 if($limit_reached){
-                    $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-primary text-muted">' . sprintf(__( 'DETAILS &nbsp;&raquo;', 'srevent' )) . '</a>'; 
+                    $excerpt_end = ' <a href="'. esc_url( get_permalink($page_id) ) . '" class="btn btn-sm btn-outline-secondary text-muted">' . sprintf(__( 'DETAILS &nbsp;&raquo;', 'srevent' )) . '</a>'; 
                     $excerpt_more = apply_filters('excerpt_more', ' ' . $excerpt_end); 
                 }
                
@@ -305,8 +305,8 @@ function sr_event_list() {
                     $content .=         "<p class='sr-event-until'>Bis: ".date_format(date_create($event_date_until),'d.m')."</p>";
                 }
                 $content .=         "<p class='sr-event-desc'>".$auto_excerpt."</p>";
-                if ( has_post_thumbnail($post_id) && !strpos($auto_excerpt,"btn-primary")) { 
-                         $content .=  '<a href="'.get_the_permalink($post_id). '" class="btn btn-sm btn-primary text-muted">' . 'DETAILS &nbsp;&raquo;' . '</a>'; 
+                if ( has_post_thumbnail($post_id) && !strpos($auto_excerpt,"btn-outline-secondary")) { 
+                         $content .=  '<a href="'.get_the_permalink($post_id). '" class="btn btn-sm btn-outline-secondary text-muted">' . 'DETAILS &nbsp;&raquo;' . '</a>'; 
                     } 
                 $content .=     '</div>';
                 $content .='</div>';
@@ -356,7 +356,7 @@ function sr_event_list() {
             $second_empty = true;
         }
         if($first_empty && $second_empty){
-            echo "Keine aktuellen Termine. <br/> <a href='termine' class='btn btn-sm btn-primary text-muted'>Übersicht</a>";
+            echo "Keine aktuellen Termine. <br/> <a href='termine' class='btn btn-sm btn-outline-secondary text-muted'>Übersicht</a>";
         }
         
         

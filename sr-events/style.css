@@ -1,0 +1,36 @@
+/* #sr-events .sr-event {
+  display: flex;
+  padding: 1rem 0;
+  width: 100%;
+}
+#sr-events .sr-event .sr-event-date {
+  border-right: 1px solid #323232;
+  display: flex;
+  flex-flow: column;
+  margin: 20px 1rem 0 0;
+  min-width: 70px;
+  text-align: center;
+  max-height: 60px;
+}
+#sr-events .sr-event .sr-event-date .sr-event-month {
+  font-size: 20px;
+  font-weight: 700;
+  padding-top: 20px;
+  text-transform: uppercase;
+  margin-top: -40px;
+}
+#sr-events .sr-event .sr-event-date .sr-event-day {
+  font-size: 40px;
+  margin-top: -10px;
+}
+#sr-events .sr-event .sr-event-text {
+  float: left;
+  padding: 1rem 0px;
+  width: 100%;
+}
+#sr-events .sr-event .sr-event-text h2 {
+  font-size: 1em;
+}
+#sr-events .sr-event .sr-event-text p {
+  font-size: 1rem;
+} */

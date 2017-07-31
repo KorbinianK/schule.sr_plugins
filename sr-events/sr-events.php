@@ -17,7 +17,7 @@ add_action( 'save_post', 'sr_event_save_date');
 add_action( 'save_post', 'sr_event_until_save_date');
 add_filter( 'manage_sr-event_posts_columns', 'register_sr_event_columns');
 add_action( 'manage_posts_custom_column', 'handle_sr_event_custom_columns', 10, 2 );
-
+add_filter('manage_edit-sr-event_sortable_columns', 'register_sr_event_sortable_column');
 add_action( 'pre_get_posts', 'sr_event_orderby' );
 function sr_event_orderby( $query ) {
     if( ! is_admin() ){
@@ -33,7 +33,6 @@ function sr_event_orderby( $query ) {
 }
 
 
-add_filter('manage_edit-sr-event_sortable_columns', 'register_sr_event_sortable_column');
 function register_sr_event_sortable_column( $columns ){
   $columns['sr_date'] = 'sr_date';
   return $columns;
@@ -144,12 +143,12 @@ function sr_event()
         'archives'              => __( 'Item Archives', 'sr-event' ),
         'attributes'            => __( 'Item Attributes', 'sr-event' ),
         'parent_item_colon'     => __( 'Parent Item:', 'sr-event' ),
-        'all_items'             => __( 'All Items', 'sr-event' ),
-        'add_new_item'          => __( 'Add New Item', 'sr-event' ),
+        'all_items'             => __( 'Alle Termine', 'sr-event' ),
+        'add_new_item'          => __( 'Neuen Termine erstellen', 'sr-event' ),
         'add_new'               => __( 'Neuer Termin', 'sr-event' ),
         'new_item'              => __( 'Neuer Termin', 'sr-event' ),
-        'edit_item'             => __( 'Edit Item', 'sr-event' ),
-        'update_item'           => __( 'Update Item', 'sr-event' ),
+        'edit_item'             => __( 'Termin bearbeiten', 'sr-event' ),
+        'update_item'           => __( 'Termine Update', 'sr-event' ),
         'view_item'             => __( 'View Item', 'sr-event' ),
         'view_items'            => __( 'View Items', 'sr-event' ),
         'search_items'          => __( 'Search Item', 'sr-event' ),
@@ -171,7 +170,7 @@ function sr_event()
         'description'           => __( 'Termin', 'sr-event' ),
         'labels'                => $labels,
         'supports'              => array('title', 'editor', 'thumbnail','metabox'),
-        'taxonomies'            => array( 'category',),
+        'taxonomies'            => array( '',),
         'hierarchical'          => false,
         'public'                => true,
         'show_ui'               => true,
